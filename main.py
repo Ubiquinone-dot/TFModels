@@ -1,5 +1,5 @@
 def main():
-    import src.FashionClassifier
+    import src.Autoencoders
 
 
 if __name__ == '__main__':
