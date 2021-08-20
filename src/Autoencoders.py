@@ -138,7 +138,7 @@ class NET:
         plt.show()
 
 
-nn = NET(code_length=10)
+nn = NET(code_length=1)
 #if not nn.Reload_Weights(): nn.Train()
 nn.Train()
 for i in range(10, 20):
