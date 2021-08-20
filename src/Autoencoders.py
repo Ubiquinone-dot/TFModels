@@ -85,7 +85,7 @@ class NET:
         hist = self.model.fit(
             x=self.train_x,
             y=self.train_x,
-            epochs=15,
+            epochs=30,
             validation_data=(self.test_x, self.test_x),
             initial_epoch=self.last_finished_epoch,
             callbacks=[self.cp_callback]
@@ -93,17 +93,27 @@ class NET:
 
         self.model.save(self.save_dir+'/saved_model')
         self.encoder.save(self.save_dir+'/saved_encoder')
+        self.decoder.save(self.save_dir+'/saved_decoder')
 
 
-    def Reload_Weights(self):   # Returns bool True if weights reloaded
-        latest_cp = tf.train.latest_checkpoint(checkpoint_dir=self.cp_dir)
-        if latest_cp == None:
-            print('No saved weights found, using initialized weights...')
-            return False
-        else:
-            print('Latest saved weights found in:', latest_cp)
-            self.model.load_weights(latest_cp)
-            return True
+    def Reload_Model(self):   # Returns bool True if weights reloaded
+        try:
+            self.model = tf.keras.models.load_model(self.save_dir+'/saved_model')
+            self.model = tf.keras.models.load_model(self.save_dir+'/saved_encoder')
+            self.model = tf.keras.models.load_model(self.save_dir+'/saved_decoder')
+
+        except Exception as e:
+            print(e)
+            print('Loading saved weights')
+            latest_cp = tf.train.latest_checkpoint(checkpoint_dir=self.cp_dir)
+            if latest_cp == None:
+                print('No saved weights found, using initialized weights...')
+                return False
+            else:
+                print('Latest saved weights found in:', latest_cp)
+                self.model.load_weights(latest_cp)
+                return True
+
 
     def Show_Reconstruction(self, i):
         img = self.train_x[i]
@@ -127,7 +137,10 @@ class NET:
         plt.subplot(1,3,2)
         plt.title('Code')
         cleanfig()
-        plt.imshow(code.reshape(code.shape[-1]//2, -1))
+        if code.shape[-1] == 1:
+            plt.imshow(code.reshape(1, -1))
+            print(code)
+        else: plt.imshow(code.reshape(code.shape[-1]//2, -1))
 
         # Add reconstruction
         plt.subplot(1, 3, 3)
@@ -135,14 +148,29 @@ class NET:
         cleanfig()
         plt.imshow(reco)
 
-        plt.show()
 
+def Train_Nets(retrain_all=False, nets=(
+        {
+            'code_length':1
+        },{
+            'code_length':5
+        },{
+            'code_length':10
+        })):
+    # Retrain all networks, load and continue specific ones or otherwise pass
+    # 1. Retrain all by command
+    # 2. Check if model is complete otherwise
+    # Check first if retrain all,
 
-nn = NET(code_length=1)
-#if not nn.Reload_Weights(): nn.Train()
-nn.Train()
-for i in range(10, 20):
-    continue
-    # nn.Show_Reconstruction(i)
+    for config in nets:
+        nn = NET(code_length=config['code_length'])
 
+        if retrain_all: # If eager retrain all
+            nn.Train()
+        else:
+            # Check that the model was not finished
+            nn.Reload_Model()
 
+        for i in range(10, 20):
+            #nn.Show_Reconstruction(i)
+            pass

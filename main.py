@@ -1,5 +1,6 @@
 def main():
-    import src.Autoencoders
+    from src.Autoencoders import Train_Nets
+    Train_Nets(retrain_all=True)
 
 
 if __name__ == '__main__':
