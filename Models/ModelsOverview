@@ -1,0 +1,5 @@
+Fashion Classifier - simple classifiers acheiving 90% accuracy on the FashionMNIST
+dataset of 28x28 grayscale images. Contains 2 working models
+
+
+Autoencoders - includes 1 basic 1 layer dense nn

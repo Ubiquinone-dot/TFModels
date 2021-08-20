@@ -1,0 +1,75 @@
+import data
+import numpy as np
+import tensorflow as tf
+import tensorflow_hub as hub
+import matplotlib.pyplot as plt
+import os
+
+
+class NET():
+    # Contains:
+    # Checkpoint generation during construction
+    # .Train() for training model on dataset
+    # .Load_Data() for storing and returning dataset
+    # Reload_Weights() for reloading checkpointed weights
+    #
+
+    # Define model architectures in Make_Model
+    @staticmethod
+    def Make_Model(self):
+        return None
+
+    def __init__(self, MODEL_ID, MODEL_CLASS):
+        self.Create_Checkpoints()
+        self.MODEL_ID, self.MODEL_CLASS = MODEL_ID, MODEL_CLASS
+        self.model = NET.Make_Model(i=MODEL_ID)
+        self.Load_Data()
+
+        print(f'Network (model id {MODEL_ID}, class {MODEL_CLASS}) successfully built.\n\n')
+
+
+    def Create_Checkpoints(self):
+        self.last_finished_epoch = 0
+        self.save_dir = f'../Models/{self.MODEL_CLASS}/model{self.MODEL_ID}'
+        cp_path = self.save_dir + '/Checkpoints/cp.ckpt'
+        self.cp_path = cp_path
+        self.cp_dir = os.path.dirname(cp_path)
+        self.cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=cp_path,
+                                                              save_weights_only=True)
+        print('Set up checkpoint path for:', self.cp_dir)
+
+
+
+    def Load_Data(self):
+        dataset = data.load_fashion_MNIST(self.MODEL_ID)
+        (self.train_x, self.train_labels), (self.test_x, self.test_labels) = self.train_data, self.test_data = dataset
+        self.N_train = int(self.train_imgs.shape[0])
+        return dataset
+
+    def Train(self):
+
+        hist = self.model.fit(
+            self.train_x,
+            self.train_labels,
+            epochs=30,
+            validation_data=(self.test_x, self.test_labels),
+            initial_epoch=self.last_finished_epoch,
+            callbacks=[self.cp_callback]
+        )
+        print(self.model.summary())
+
+        test_loss, test_acc = self.model.evaluate(self.test_x, self.test_labels, verbose=2)
+        print('\nTest accuracy acheived:', test_acc)
+
+
+        self.model.save(self.save_dir+'/saved_model')
+
+
+
+    def Reload_Weights(self):
+        latest_cp = tf.train.latest_checkpoint(checkpoint_dir=self.cp_dir)
+        if latest_cp == None: print('No saved weights found, using random weights...')
+        else:
+            print('Latest saved weights found in:', latest_cp)
+            self.model.load_weights(latest_cp)
+
