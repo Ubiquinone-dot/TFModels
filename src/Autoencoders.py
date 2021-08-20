@@ -142,6 +142,7 @@ nn = NET(code_length=10)
 #if not nn.Reload_Weights(): nn.Train()
 nn.Train()
 for i in range(10, 20):
-    nn.Show_Reconstruction(i)
+    continue
+    # nn.Show_Reconstruction(i)
 
 
