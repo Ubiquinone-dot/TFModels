@@ -58,7 +58,7 @@ class NET:
 
     def Create_Checkpoints(self):
         self.last_finished_epoch = 0
-        self.save_dir = f'../Models/{self.MODEL_CLASS}/model{self.MODEL_ID}_size{self.code_length}'
+        self.save_dir = f'Models/{self.MODEL_CLASS}/model{self.MODEL_ID}_size{self.code_length}'
         cp_path = self.save_dir + '/Checkpoints/cp.ckpt'
         self.cp_path = cp_path
         self.cp_dir = os.path.dirname(cp_path)
